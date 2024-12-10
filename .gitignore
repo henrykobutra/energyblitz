@@ -42,5 +42,6 @@ next-env.d.ts
 # ml
 /venv
 /ml/models
+/ml/data
 /data/processed
 /data/raw

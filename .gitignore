@@ -42,5 +42,5 @@ next-env.d.ts
 # ml
 /venv
 /ml/models
-public/data/weather
 /data/processed
+/data/raw

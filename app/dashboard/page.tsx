@@ -1,4 +1,4 @@
-import { YearSelector } from "@/components/YearSelector";
+import { DataConfiguration } from "@/components/DataConfiguration";
 import { EnergyConsumptionChart } from "@/components/charts/EnergyConsumptionChart";
 import { TrendAnalysis } from "@/components/analysis/TrendAnalysis";
 import { ImpactAssessment } from "@/components/analysis/ImpactAssessment";
@@ -12,7 +12,7 @@ const DashboardPage = () => {
   // Detailed Region Overview (Line chart) with View More to drill down on Region
   return (
     <div className="flex flex-col gap-4">
-      <YearSelector />
+      <DataConfiguration />
       <div className="flex gap-4">
         <div className="w-2/3">
           <EnergyConsumptionChart />

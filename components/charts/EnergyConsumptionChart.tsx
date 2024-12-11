@@ -16,7 +16,7 @@ import {
 } from "recharts";
 import { DateRange } from "react-day-picker";
 import { format, parseISO, addDays } from "date-fns";
-import { DATA_START_DATE, DATA_END_DATE } from "@/lib/data/constants";
+import { DATA_START_DATE } from "@/lib/data/constants";
 import {
   fetchHourlyData,
   fetchDailyData,
@@ -24,6 +24,7 @@ import {
 } from "@/lib/data/utils";
 import { ConsumptionDataParsed } from "@/types/data";
 import { SingleDatePicker } from "@/components/SingleDatePicker";
+import { getTimeFormat, getDateRange, getMaxDate, getDaysToAdd } from "@/lib/chart/utils";
 
 interface ChartData {
   time: string;
@@ -83,43 +84,8 @@ export function EnergyConsumptionChart() {
     fetchData();
   }, [dateRange, activeTab]);
 
-  const getTimeFormat = (tab: string) => {
-    switch (tab) {
-      case "hourly":
-        return "HH:mm";
-      case "daily":
-        return "MMM dd HH:mm";
-      case "weekly":
-        return "MMM dd";
-      case "monthly":
-        return "'Week' w";
-      default:
-        return "MMM dd";
-    }
-  };
-
   useEffect(() => {
-    const from = selectedDate;
-    let to;
-    
-    switch (activeTab) {
-      case "hourly":
-        to = addDays(from, 1); // 48 hours
-        break;
-      case "daily":
-        to = addDays(from, 6); // 7 days
-        break;
-      case "weekly":
-        to = addDays(from, 29); // 30 days
-        break;
-      case "monthly":
-        to = parseISO(DATA_END_DATE); // Use the full end date
-        break;
-      default:
-        to = addDays(from, 6);
-    }
-    
-    setDateRange({ from, to });
+    setDateRange(getDateRange(selectedDate, activeTab));
   }, [selectedDate, activeTab]);
 
   const handleTabChange = (tab: string) => {
@@ -150,24 +116,8 @@ export function EnergyConsumptionChart() {
             onDateChange={setSelectedDate}
             disabled={activeTab === "monthly"}
             fromDate={new Date(DATA_START_DATE)}
-            toDate={
-              activeTab === "hourly"
-                ? addDays(new Date(DATA_END_DATE), -1)
-                : activeTab === "daily"
-                ? addDays(new Date(DATA_END_DATE), -6)
-                : activeTab === "weekly"
-                ? addDays(new Date(DATA_END_DATE), -29)
-                : new Date(DATA_END_DATE)
-            }
-            daysToAdd={
-              activeTab === "hourly"
-                ? 1
-                : activeTab === "daily"
-                ? 6
-                : activeTab === "weekly"
-                ? 29
-                : undefined
-            }
+            toDate={getMaxDate(activeTab)}
+            daysToAdd={getDaysToAdd(activeTab)}
           />
         </div>
         {isLoading ? (

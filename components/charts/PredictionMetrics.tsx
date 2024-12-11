@@ -5,6 +5,9 @@ import { Progress } from "@/components/ui/progress";
 import { CardHeader } from "@/components/CardHeader";
 import { useChartStore } from "@/lib/stores/chartStore";
 import { format } from "date-fns";
+import { useEffect, useState } from "react";
+import { calculatePredictionMetrics } from "@/lib/data/utils/metrics";
+import { fetchHourlyData } from "@/lib/data/utils";
 
 interface MetricProps {
   label: string;
@@ -18,7 +21,11 @@ const Metric = ({ label, value, max, unit }: MetricProps) => (
     <div className="flex justify-between text-xs">
       <span>{label}</span>
       <span className="font-medium">
-        {value.toFixed(2)} / {max} {unit}
+        {value.toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}{" "}
+        / {max.toLocaleString()} {unit}
       </span>
     </div>
     <Progress value={(value / max) * 100} className="h-2" />
@@ -27,6 +34,28 @@ const Metric = ({ label, value, max, unit }: MetricProps) => (
 
 export function PredictionMetrics() {
   const dateRange = useChartStore((state) => state.dateRange);
+  const [metrics, setMetrics] = useState({
+    mae: 0,
+    rmse: 0,
+    mape: 0,
+    r2: 0,
+  });
+
+  useEffect(() => {
+    async function calculateMetrics() {
+      if (!dateRange?.from || !dateRange?.to) return;
+
+      try {
+        const data = await fetchHourlyData(dateRange.from, dateRange.to);
+        const calculatedMetrics = calculatePredictionMetrics(data);
+        setMetrics(calculatedMetrics);
+      } catch (error) {
+        console.error("Error calculating metrics:", error);
+      }
+    }
+
+    calculateMetrics();
+  }, [dateRange]);
 
   const formattedDateRange =
     dateRange?.from && dateRange?.to
@@ -43,10 +72,10 @@ export function PredictionMetrics() {
         description={`Date Range: ${formattedDateRange}`}
       />
       <CardContent className="flex-grow grid grid-cols-2 gap-4">
-        <Metric label="MAE" value={245.32} max={500} unit="kWh" />
-        <Metric label="RMSE" value={312.18} max={600} unit="kWh" />
-        <Metric label="MAPE" value={3.75} max={10} unit="%" />
-        <Metric label="R2" value={0.92} max={1} unit="" />
+        <Metric label="MAE" value={metrics.mae} max={2000} unit="MW" />
+        <Metric label="RMSE" value={metrics.rmse} max={2000} unit="MW" />
+        <Metric label="MAPE" value={metrics.mape} max={10} unit="%" />
+        <Metric label="R²" value={metrics.r2} max={1} unit="" />
       </CardContent>
     </Card>
   );

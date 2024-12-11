@@ -15,7 +15,7 @@ export async function fetchHourlyData(
   endDate: Date = new Date(),
 ): Promise<ConsumptionDataParsed[]> {
   try {
-    const effectiveStartDate = getEffectiveStartDate(startDate, endDate, 2); // 48 hours
+    const effectiveStartDate = getEffectiveStartDate(startDate, endDate, 7); // 7 days
     const data = await fetchFilteredData(effectiveStartDate, endDate);
     return data
       .map(parseConsumptionData)

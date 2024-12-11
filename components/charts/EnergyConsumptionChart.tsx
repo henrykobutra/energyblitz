@@ -15,83 +15,85 @@ import {
   Legend,
 } from "recharts";
 import { DateRange } from "react-day-picker";
-import {
-  eachDayOfInterval,
-  eachWeekOfInterval,
-  eachMonthOfInterval,
-  format,
-  startOfDay,
-  endOfDay,
-} from "date-fns";
+import { format, parseISO, addDays } from "date-fns";
 import { DateRangePicker } from "@/components/DateRangePicker";
+import { DATA_START_DATE } from "@/lib/data/constants";
+import {
+  fetchHourlyData,
+  fetchDailyData,
+  fetchWeeklyData,
+} from "@/lib/data/utils";
+import { ConsumptionDataParsed } from "@/types/data";
 
-// Helper function to generate random consumption data
-const generateRandomConsumption = (min: number, max: number) =>
-  Math.floor(Math.random() * (max - min + 1)) + min;
-
-// Helper function to generate prediction data (slightly different from actual data)
-const generatePredictionData = (actualData: any[]) => {
-  return actualData.map((item) => ({
-    ...item,
-    prediction: item.consumption + generateRandomConsumption(-20, 20),
-  }));
-};
-
-// Function to generate data based on date range and interval
-const generateData = (dateRange: DateRange, interval: string) => {
-  if (!dateRange.from || !dateRange.to) return [];
-
-  const start = startOfDay(dateRange.from);
-  const end = endOfDay(dateRange.to);
-
-  let data: any[];
-
-  switch (interval) {
-    case "hourly":
-      data = Array.from({ length: 24 }, (_, i) => ({
-        time: `${i}:00`,
-        consumption: generateRandomConsumption(50, 150),
-      }));
-      break;
-    case "daily":
-      data = eachDayOfInterval({ start, end }).map((date) => ({
-        time: format(date, "MMM dd"),
-        consumption: generateRandomConsumption(300, 800),
-      }));
-      break;
-    case "weekly":
-      data = eachWeekOfInterval({ start, end }).map((date) => ({
-        time: `Week ${format(date, "w")}`,
-        consumption: generateRandomConsumption(1500, 3500),
-      }));
-      break;
-    case "monthly":
-      data = eachMonthOfInterval({ start, end }).map((date) => ({
-        time: format(date, "MMM yyyy"),
-        consumption: generateRandomConsumption(5000, 15000),
-      }));
-      break;
-    default:
-      data = [];
-  }
-
-  return generatePredictionData(data);
-};
+interface ChartData {
+  time: string;
+  consumption: number;
+  prediction: number;
+}
 
 export function EnergyConsumptionChart() {
   const [activeTab, setActiveTab] = useState("daily");
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: new Date(2023, 0, 1),
-    to: new Date(2023, 11, 31),
+    from: parseISO(DATA_START_DATE),
+    to: addDays(parseISO(DATA_START_DATE), 6),
   });
-  const [chartData, setChartData] = useState<any[]>([]);
+  const [chartData, setChartData] = useState<ChartData[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (dateRange?.from && dateRange?.to) {
-      const newData = generateData(dateRange, activeTab);
-      setChartData(newData);
+    async function fetchData() {
+      if (!dateRange?.from || !dateRange?.to) return;
+
+      setIsLoading(true);
+      try {
+        let data: ConsumptionDataParsed[] = [];
+
+        switch (activeTab) {
+          case "hourly": // 48 Hours
+            data = await fetchHourlyData(dateRange.from, dateRange.to);
+            break;
+          case "daily": // 7 Days
+            data = await fetchHourlyData(dateRange.from, dateRange.to);
+            break;
+          case "weekly": // 30 Days
+            data = await fetchDailyData(dateRange.from, dateRange.to);
+            break;
+          case "monthly": // All Data
+            data = await fetchWeeklyData(dateRange.from, dateRange.to);
+            break;
+        }
+
+        const formattedData = data.map((item) => ({
+          time: format(item.timestamp, getTimeFormat(activeTab)),
+          consumption: item.PJME,
+          prediction: item.Predicted_PJME,
+        }));
+
+        setChartData(formattedData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
+      }
     }
+
+    fetchData();
   }, [dateRange, activeTab]);
+
+  const getTimeFormat = (tab: string) => {
+    switch (tab) {
+      case "hourly":
+        return "HH:mm";
+      case "daily":
+        return "MMM dd HH:mm";
+      case "weekly":
+        return "MMM dd";
+      case "monthly":
+        return "'Week' w";
+      default:
+        return "MMM dd";
+    }
+  };
 
   const handleDateRangeChange = (range: DateRange | undefined) => {
     setDateRange(range);
@@ -107,10 +109,10 @@ export function EnergyConsumptionChart() {
         <div className="flex justify-between items-center mb-4">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList>
-              <TabsTrigger value="hourly">Hourly</TabsTrigger>
-              <TabsTrigger value="daily">Daily</TabsTrigger>
-              <TabsTrigger value="weekly">Weekly</TabsTrigger>
-              <TabsTrigger value="monthly">Monthly</TabsTrigger>
+              <TabsTrigger value="hourly">48 Hours</TabsTrigger>
+              <TabsTrigger value="daily">7 Days</TabsTrigger>
+              <TabsTrigger value="weekly">30 Days</TabsTrigger>
+              <TabsTrigger value="monthly">All Data</TabsTrigger>
             </TabsList>
           </Tabs>
           <DateRangePicker
@@ -118,31 +120,37 @@ export function EnergyConsumptionChart() {
             onDateRangeChange={handleDateRangeChange}
           />
         </div>
-        <ResponsiveContainer width="100%" height={400}>
-          <LineChart
-            data={chartData}
-            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="time" />
-            <YAxis unit=" MW" />
-            <Tooltip formatter={(value) => `${value} MW`} />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="consumption"
-              stroke="hsl(var(--chart-1))"
-              activeDot={{ r: 8 }}
-              name="Actual"
-            />
-            <Line
-              type="monotone"
-              dataKey="prediction"
-              stroke="hsl(var(--chart-2))"
-              strokeDasharray="5 5"
-              name="Prediction"
-            />
-          </LineChart>
-        </ResponsiveContainer>
+        {isLoading ? (
+          <div className="h-[400px] flex items-center justify-center">
+            Loading...
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height={400}>
+            <LineChart
+              data={chartData}
+              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="time" />
+              <YAxis unit=" MW" />
+              <Tooltip formatter={(value) => `${value} MW`} />
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey="consumption"
+                stroke="hsl(var(--chart-1))"
+                activeDot={{ r: 8 }}
+                name="Actual"
+              />
+              <Line
+                type="monotone"
+                dataKey="prediction"
+                stroke="hsl(var(--chart-2))"
+                strokeDasharray="5 5"
+                name="Prediction"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        )}
       </CardContent>
     </Card>
   );

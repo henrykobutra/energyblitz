@@ -1,0 +1,99 @@
+{
+  "metadata": {
+    "time_range": {
+      "start": "2017-07-01",
+      "end": "2017-08-31",
+      "total_hours": 0
+    },
+    "feature_stats": {
+      "temperature_chicago": {
+        "min": NaN,
+        "max": NaN,
+        "mean": NaN,
+        "std": NaN
+      },
+      "temperature_washington": {
+        "min": NaN,
+        "max": NaN,
+        "mean": NaN,
+        "std": NaN
+      },
+      "temperature_pittsburgh": {
+        "min": NaN,
+        "max": NaN,
+        "mean": NaN,
+        "std": NaN
+      },
+      "temperature_columbus": {
+        "min": NaN,
+        "max": NaN,
+        "mean": NaN,
+        "std": NaN
+      },
+      "temp_avg": {
+        "min": NaN,
+        "max": NaN,
+        "mean": NaN,
+        "std": NaN
+      },
+      "temp_spread": {
+        "min": NaN,
+        "max": NaN,
+        "mean": NaN,
+        "std": NaN
+      },
+      "weather_severity": {
+        "min": NaN,
+        "max": NaN,
+        "mean": NaN,
+        "std": NaN
+      },
+      "PJME": {
+        "min": NaN,
+        "max": NaN,
+        "mean": NaN,
+        "std": NaN
+      },
+      "consumption_change_rate": {
+        "min": NaN,
+        "max": NaN,
+        "mean": NaN,
+        "std": NaN
+      }
+    },
+    "feature_groups": {
+      "temporal": [
+        "hour",
+        "day_of_week",
+        "is_weekend",
+        "is_morning",
+        "is_afternoon",
+        "is_evening",
+        "is_night"
+      ],
+      "weather": [
+        "temperature_chicago",
+        "temperature_washington",
+        "temperature_pittsburgh",
+        "temperature_columbus",
+        "temp_avg",
+        "temp_spread",
+        "weather_severity"
+      ],
+      "consumption": [
+        "PJME",
+        "is_peak_hour",
+        "consumption_change_rate"
+      ]
+    },
+    "summary_stats": {
+      "peak_consumption": NaN,
+      "avg_consumption": NaN,
+      "min_consumption": NaN,
+      "peak_temperature": NaN,
+      "avg_temperature": NaN
+    }
+  },
+  "hourly_data": [],
+  "daily_summaries": []
+}

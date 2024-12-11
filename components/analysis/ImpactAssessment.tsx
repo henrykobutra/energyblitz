@@ -1,11 +1,9 @@
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
   CardFooter,
 } from "@/components/ui/card";
+import { CardHeader } from "@/components/CardHeader";
 import {
   Thermometer,
   CloudRain,
@@ -22,12 +20,10 @@ import { Button } from "@/components/ui/button";
 export function ImpactAssessment() {
   return (
     <Card className="h-full flex flex-col">
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold">Impact Assessment</CardTitle>
-        <CardDescription className="text-muted-foreground">
-          Quantitative analysis of external factors influencing energy demand
-        </CardDescription>
-      </CardHeader>
+      <CardHeader
+        title="Impact Assessment"
+        description="Quantitative analysis of external factors influencing energy demand"
+      />
       <CardContent className="flex-grow space-y-6">
         <ul className="space-y-4">
           <li className="flex items-start space-x-3">

@@ -1,11 +1,9 @@
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
   CardFooter,
 } from "@/components/ui/card";
+import { CardHeader } from "@/components/CardHeader";
 import { Button } from "@/components/ui/button";
 import {
   Lightbulb,
@@ -18,12 +16,10 @@ import {
 export function Recommendations() {
   return (
     <Card className="h-full flex flex-col">
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold">Recommendations</CardTitle>
-        <CardDescription className="text-muted-foreground">
-          AI-powered suggestions to improve grid efficiency
-        </CardDescription>
-      </CardHeader>
+      <CardHeader
+        title="Recommendations"
+        description="AI-powered suggestions to improve grid efficiency"
+      />
       <CardContent className="flex-grow space-y-6">
         <ul className="space-y-4">
           <li className="flex flex-col space-y-2">

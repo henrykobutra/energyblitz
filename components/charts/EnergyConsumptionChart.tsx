@@ -1,13 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { CardHeader } from "@/components/CardHeader";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   LineChart,
@@ -104,12 +99,10 @@ export function EnergyConsumptionChart() {
 
   return (
     <Card className="w-full max-w-4xl">
-      <CardHeader>
-        <CardTitle>Energy Consumption Chart</CardTitle>
-        <CardDescription>
-          Toggle between hourly, daily, weekly, and monthly views
-        </CardDescription>
-      </CardHeader>
+      <CardHeader
+        title="Energy Consumption Chart"
+        description="Toggle between hourly, daily, weekly, and monthly views"
+      />
       <CardContent>
         <div className="flex justify-between items-center mb-4">
           <Tabs value={activeTab} onValueChange={setActiveTab}>

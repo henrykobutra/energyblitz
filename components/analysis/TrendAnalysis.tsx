@@ -1,11 +1,5 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { CardHeader } from "@/components/CardHeader";
 import {
   TrendingUp,
   Calendar,
@@ -19,12 +13,10 @@ import { Button } from "@/components/ui/button";
 export function TrendAnalysis() {
   return (
     <Card className="h-full flex flex-col">
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold">Trend Analysis</CardTitle>
-        <CardDescription className="text-muted-foreground">
-          Insights into energy consumption patterns over time
-        </CardDescription>
-      </CardHeader>
+      <CardHeader
+        title="Trend Analysis"
+        description="Insights into energy consumption patterns over time"
+      />
       <CardContent className="flex-grow space-y-6">
         <ul className="space-y-4">
           <li className="flex items-start space-x-3">

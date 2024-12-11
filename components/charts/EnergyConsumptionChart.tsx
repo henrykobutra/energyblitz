@@ -29,13 +29,6 @@ import {
   endOfDay,
 } from "date-fns";
 import { DateRangePicker } from "@/components/DateRangePicker";
-import { Info } from "lucide-react";
-import {
-  Tooltip as UITooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 // Helper function to generate random consumption data
 const generateRandomConsumption = (min: number, max: number) =>
@@ -90,30 +83,6 @@ const generateData = (dateRange: DateRange, interval: string) => {
   return generatePredictionData(data);
 };
 
-// Function to calculate metrics
-const calculateMetrics = (data: any[]) => {
-  const n = data.length;
-  let sumError = 0;
-  let sumAbsPercentError = 0;
-  let sumSquaredError = 0;
-  let sumSquaredTotal = 0;
-  const mean = data.reduce((acc, val) => acc + val.consumption, 0) / n;
-
-  data.forEach((item) => {
-    const error = item.prediction - item.consumption;
-    sumError += Math.abs(error);
-    sumAbsPercentError += Math.abs(error / item.consumption);
-    sumSquaredError += error * error;
-    sumSquaredTotal += (item.consumption - mean) * (item.consumption - mean);
-  });
-
-  const mae = sumError / n;
-  const mape = (sumAbsPercentError / n) * 100;
-  const r2 = 1 - sumSquaredError / sumSquaredTotal;
-
-  return { mae, mape, r2 };
-};
-
 export function EnergyConsumptionChart() {
   const [activeTab, setActiveTab] = useState("daily");
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
@@ -121,13 +90,11 @@ export function EnergyConsumptionChart() {
     to: new Date(2023, 11, 31),
   });
   const [chartData, setChartData] = useState<any[]>([]);
-  const [metrics, setMetrics] = useState({ mae: 0, mape: 0, r2: 0 });
 
   useEffect(() => {
     if (dateRange?.from && dateRange?.to) {
       const newData = generateData(dateRange, activeTab);
       setChartData(newData);
-      setMetrics(calculateMetrics(newData));
     }
   }, [dateRange, activeTab]);
 
@@ -170,75 +137,19 @@ export function EnergyConsumptionChart() {
             <Line
               type="monotone"
               dataKey="consumption"
-              stroke="#8884d8"
+              stroke="hsl(var(--chart-1))"
               activeDot={{ r: 8 }}
               name="Actual"
             />
             <Line
               type="monotone"
               dataKey="prediction"
-              stroke="#82ca9d"
+              stroke="hsl(var(--chart-2))"
               strokeDasharray="5 5"
               name="Prediction"
             />
           </LineChart>
         </ResponsiveContainer>
-        <div className="mt-4 grid grid-cols-3 gap-3">
-          <MetricCard
-            title="MAE"
-            value={metrics.mae.toFixed(2)}
-            description="Mean Absolute Error (MW)"
-            tooltip="Average absolute difference between predicted and actual values"
-          />
-          <MetricCard
-            title="MAPE"
-            value={`${metrics.mape.toFixed(2)}%`}
-            description="Mean Absolute Percentage Error"
-            tooltip="Average percentage difference between predicted and actual values"
-          />
-          <MetricCard
-            title="R²"
-            value={metrics.r2.toFixed(4)}
-            description="R-squared"
-            tooltip="Proportion of the variance in the dependent variable that is predictable from the independent variable(s)"
-          />
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function MetricCard({
-  title,
-  value,
-  description,
-  tooltip,
-}: {
-  title: string;
-  value: string;
-  description: string;
-  tooltip: string;
-}) {
-  return (
-    <Card className="overflow-hidden">
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between mb-2">
-          <div className="text-sm font-medium text-muted-foreground flex items-center">
-            {title}
-            <TooltipProvider>
-              <UITooltip>
-                <TooltipTrigger>
-                  <Info className="h-4 w-4 ml-1" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="max-w-xs">{tooltip}</p>
-                </TooltipContent>
-              </UITooltip>
-            </TooltipProvider>
-          </div>
-          <div className="text-2xl font-bold">{value}</div>
-        </div>
-        <div className="text-xs text-muted-foreground">{description}</div>
       </CardContent>
     </Card>
   );

@@ -2,8 +2,7 @@
 
 // React and core dependencies
 import { useState, useEffect } from "react";
-import { DateRange } from "react-day-picker";
-import { format, parseISO, addDays } from "date-fns";
+import { format, parseISO } from "date-fns";
 
 // UI Components
 import { Card, CardContent } from "@/components/ui/card";
@@ -40,6 +39,7 @@ import {
 // Types
 import { ConsumptionDataParsed } from "@/types/data";
 import { TimeRange } from "@/types/enums";
+import { useChartStore } from "@/lib/stores/chartStore";
 
 interface ChartData {
   time: string;
@@ -48,14 +48,10 @@ interface ChartData {
 }
 
 export function EnergyConsumptionChart() {
-  const [activeTab, setActiveTab] = useState<TimeRange>(TimeRange.DAYS_7);
+  const { activeTab, dateRange, setActiveTab, setDateRange } = useChartStore();
   const [selectedDate, setSelectedDate] = useState<Date>(
     parseISO(DATA_START_DATE),
   );
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: parseISO(DATA_START_DATE),
-    to: addDays(parseISO(DATA_START_DATE), 6),
-  });
   const [chartData, setChartData] = useState<ChartData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -101,7 +97,7 @@ export function EnergyConsumptionChart() {
 
   useEffect(() => {
     setDateRange(getDateRange(selectedDate, activeTab));
-  }, [selectedDate, activeTab]);
+  }, [selectedDate, activeTab, setDateRange]);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab as TimeRange);

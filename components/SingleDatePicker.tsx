@@ -30,9 +30,9 @@ export function SingleDatePicker({
   disabled = false,
   fromDate,
   toDate,
-  daysToAdd = 0,
+  daysToAdd,
 }: SingleDatePickerProps) {
-  const endDate = daysToAdd ? addDays(date, daysToAdd) : date;
+  const endDate = daysToAdd ? addDays(date, daysToAdd) : toDate || date;
   const [open, setOpen] = React.useState(false);
 
   return (
@@ -50,7 +50,7 @@ export function SingleDatePicker({
             disabled={disabled}>
             <CalendarIcon className="mr-2 h-4 w-4" />
             {date ? (
-              daysToAdd ? (
+              daysToAdd || toDate ? (
                 <>
                   {format(date, "LLL dd, y")} - {format(endDate, "LLL dd, y")}
                 </>
@@ -63,7 +63,7 @@ export function SingleDatePicker({
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
-          {daysToAdd > 0 && (
+          {daysToAdd && daysToAdd > 0 && (
             <div className="w-[250px] px-3 py-2 text-sm text-muted-foreground border-b text-wrap">
               Selecting a date will automatically include the next {daysToAdd}{" "}
               day{daysToAdd > 1 ? "s" : ""}

@@ -100,17 +100,25 @@ export function EnergyConsumptionChart() {
 
   useEffect(() => {
     const from = selectedDate;
-    const to = addDays(
-      from,
-      activeTab === "hourly"
-        ? 1 // 48 hours
-        : activeTab === "daily"
-        ? 6 // 7 days
-        : activeTab === "weekly"
-        ? 29 // 30 days
-        : parseISO(DATA_END_DATE).getDate() -
-          parseISO(DATA_START_DATE).getDate(), // full range
-    );
+    let to;
+    
+    switch (activeTab) {
+      case "hourly":
+        to = addDays(from, 1); // 48 hours
+        break;
+      case "daily":
+        to = addDays(from, 6); // 7 days
+        break;
+      case "weekly":
+        to = addDays(from, 29); // 30 days
+        break;
+      case "monthly":
+        to = parseISO(DATA_END_DATE); // Use the full end date
+        break;
+      default:
+        to = addDays(from, 6);
+    }
+    
     setDateRange({ from, to });
   }, [selectedDate, activeTab]);
 

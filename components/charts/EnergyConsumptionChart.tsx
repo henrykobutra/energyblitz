@@ -1,9 +1,17 @@
 "use client";
 
+// React and core dependencies
 import { useState, useEffect } from "react";
+import { DateRange } from "react-day-picker";
+import { format, parseISO, addDays } from "date-fns";
+
+// UI Components
 import { Card, CardContent } from "@/components/ui/card";
 import { CardHeader } from "@/components/CardHeader";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SingleDatePicker } from "@/components/SingleDatePicker";
+
+// Chart Components
 import {
   LineChart,
   Line,
@@ -14,17 +22,24 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { DateRange } from "react-day-picker";
-import { format, parseISO, addDays } from "date-fns";
+
+// Utils and Constants
 import { DATA_START_DATE } from "@/lib/data/constants";
 import {
   fetchHourlyData,
   fetchDailyData,
   fetchWeeklyData,
 } from "@/lib/data/utils";
+import {
+  getTimeFormat,
+  getDateRange,
+  getMaxDate,
+  getDaysToAdd,
+} from "@/lib/chart/utils";
+
+// Types
 import { ConsumptionDataParsed } from "@/types/data";
-import { SingleDatePicker } from "@/components/SingleDatePicker";
-import { getTimeFormat, getDateRange, getMaxDate, getDaysToAdd } from "@/lib/chart/utils";
+import { TimeRange } from "@/types/enums";
 
 interface ChartData {
   time: string;
@@ -33,7 +48,7 @@ interface ChartData {
 }
 
 export function EnergyConsumptionChart() {
-  const [activeTab, setActiveTab] = useState("daily");
+  const [activeTab, setActiveTab] = useState<TimeRange>(TimeRange.DAYS_7);
   const [selectedDate, setSelectedDate] = useState<Date>(
     parseISO(DATA_START_DATE),
   );
@@ -53,16 +68,16 @@ export function EnergyConsumptionChart() {
         let data: ConsumptionDataParsed[] = [];
 
         switch (activeTab) {
-          case "hourly": // 48 Hours
+          case TimeRange.HOURS_48: // 48 Hours
             data = await fetchHourlyData(dateRange.from, dateRange.to);
             break;
-          case "daily": // 7 Days
+          case TimeRange.DAYS_7: // 7 Days
             data = await fetchHourlyData(dateRange.from, dateRange.to);
             break;
-          case "weekly": // 30 Days
+          case TimeRange.DAYS_30: // 30 Days
             data = await fetchDailyData(dateRange.from, dateRange.to);
             break;
-          case "monthly": // All Data
+          case TimeRange.ALL_DATA: // All Data
             data = await fetchWeeklyData(dateRange.from, dateRange.to);
             break;
         }
@@ -89,8 +104,8 @@ export function EnergyConsumptionChart() {
   }, [selectedDate, activeTab]);
 
   const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-    if (tab === "monthly") {
+    setActiveTab(tab as TimeRange);
+    if (tab === TimeRange.ALL_DATA) {
       setSelectedDate(parseISO(DATA_START_DATE));
     }
   };
@@ -105,16 +120,16 @@ export function EnergyConsumptionChart() {
         <div className="flex justify-between items-center mb-4">
           <Tabs value={activeTab} onValueChange={handleTabChange}>
             <TabsList>
-              <TabsTrigger value="hourly">48 Hours</TabsTrigger>
-              <TabsTrigger value="daily">7 Days</TabsTrigger>
-              <TabsTrigger value="weekly">30 Days</TabsTrigger>
-              <TabsTrigger value="monthly">All Data</TabsTrigger>
+              <TabsTrigger value={TimeRange.HOURS_48}>48 Hours</TabsTrigger>
+              <TabsTrigger value={TimeRange.DAYS_7}>7 Days</TabsTrigger>
+              <TabsTrigger value={TimeRange.DAYS_30}>30 Days</TabsTrigger>
+              <TabsTrigger value={TimeRange.ALL_DATA}>All Data</TabsTrigger>
             </TabsList>
           </Tabs>
           <SingleDatePicker
             date={selectedDate}
             onDateChange={setSelectedDate}
-            disabled={activeTab === "monthly"}
+            disabled={activeTab === TimeRange.ALL_DATA}
             fromDate={new Date(DATA_START_DATE)}
             toDate={getMaxDate(activeTab)}
             daysToAdd={getDaysToAdd(activeTab)}

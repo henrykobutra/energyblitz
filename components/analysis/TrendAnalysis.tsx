@@ -16,7 +16,6 @@ import { Button } from "@/components/ui/button";
 import { fetchHourlyData } from "@/lib/data/utils";
 import { generateInsights, AnalysisInsights } from "@/lib/analysis/utils";
 import { useChartStore } from "@/lib/stores/chartStore";
-import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 export function TrendAnalysis() {

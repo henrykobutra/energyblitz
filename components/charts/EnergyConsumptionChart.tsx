@@ -132,11 +132,11 @@ export function EnergyConsumptionChart() {
           />
         </div>
         {isLoading ? (
-          <div className="h-[400px] flex items-center justify-center">
+          <div className="h-[444px] flex items-center justify-center">
             Loading...
           </div>
         ) : (
-          <ResponsiveContainer width="100%" height={400}>
+          <ResponsiveContainer width="100%" height={444}>
             <LineChart
               data={chartData}
               margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>

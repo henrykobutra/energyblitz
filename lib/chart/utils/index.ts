@@ -4,13 +4,13 @@ import { DATA_END_DATE } from "@/lib/data/constants";
 export const getTimeFormat = (tab: string) => {
   switch (tab) {
     case "hourly":
-      return "HH:mm";
+      return "ha (MMM d)";
     case "daily":
-      return "MMM dd HH:mm";
+      return "ha (MMM d)";
     case "weekly":
       return "MMM dd";
     case "monthly":
-      return "'Week' w";
+      return "MMM d";
     default:
       return "MMM dd";
   }
@@ -19,24 +19,24 @@ export const getTimeFormat = (tab: string) => {
 export const getDateRange = (selectedDate: Date, activeTab: string) => {
   const from = selectedDate;
   let to;
-  
+
   switch (activeTab) {
     case "hourly":
-      to = addDays(from, 1); // 48 hours
+      to = addDays(from, 2); // 48 hours
       break;
     case "daily":
-      to = addDays(from, 6); // 7 days
+      to = addDays(from, 7); // 7 days
       break;
     case "weekly":
-      to = addDays(from, 29); // 30 days
+      to = addDays(from, 30); // 30 days
       break;
     case "monthly":
       to = parseISO(DATA_END_DATE); // Use the full end date
       break;
     default:
-      to = addDays(from, 6);
+      to = addDays(from, 7);
   }
-  
+
   return { from, to };
 };
 

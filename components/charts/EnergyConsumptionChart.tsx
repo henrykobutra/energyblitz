@@ -141,9 +141,33 @@ export function EnergyConsumptionChart() {
               data={chartData}
               margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="time" />
-              <YAxis unit=" MW" />
-              <Tooltip formatter={(value) => `${value} MW`} />
+              <XAxis
+                dataKey="time"
+                angle={-45}
+                textAnchor="end"
+                height={60}
+                tickFormatter={(value) => {
+                  if (
+                    activeTab === TimeRange.HOURS_48 ||
+                    activeTab === TimeRange.DAYS_7
+                  ) {
+                    // Only show the time portion for hourly views
+                    return value.split(" ")[0]; // This will show only the time part
+                  }
+                  return value;
+                }}
+              />
+              <YAxis
+                tickFormatter={(value) => `${(value / 1000).toFixed(1)}k`}
+              />
+              <Tooltip
+                formatter={(value) =>
+                  `${value.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })} MW`
+                }
+              />
               <Legend />
               <Line
                 type="monotone"

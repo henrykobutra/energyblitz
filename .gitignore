@@ -42,9 +42,8 @@ next-env.d.ts
 # ml
 /venv
 /ml/models
-/ml/data
-/data/processed
-/data/raw
+/ml/data/processed
+/ml/data/raw/weather/noaa_data.csv
 
 # python
 __pycache__/

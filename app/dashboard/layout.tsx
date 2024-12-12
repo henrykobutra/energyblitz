@@ -1,5 +1,7 @@
 import Link from "next/link";
 import React from "react";
+import { FeaturePreviewDialogProvider } from "@/contexts/FeaturePreviewContext";
+import { FeaturePreviewDialog } from "@/components/FeaturePreviewDialog";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -8,6 +10,7 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <div className="min-h-screen flex flex-col">
+      <FeaturePreviewDialogProvider>
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-4 py-3">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
@@ -51,6 +54,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
         </div>
       </footer>
+      <FeaturePreviewDialog />
+      </FeaturePreviewDialogProvider>
     </div>
   );
 }

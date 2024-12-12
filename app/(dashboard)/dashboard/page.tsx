@@ -5,12 +5,6 @@ import { ImpactAssessment } from "@/components/analysis/ImpactAssessment";
 import { Recommendations } from "@/components/analysis/Recommendation";
 import { PredictionMetrics } from "@/components/charts/PredictionMetrics";
 const DashboardPage = () => {
-  // #Layout Design
-  // ✅ select year
-  // ✅ energy consumption and prediction -> ✅ Trend Analysis
-  // ✅ Impact Assessment -> ✅ Recommendations
-  // Github style hourly consumption trends
-  // Detailed Region Overview (Line chart) with View More to drill down on Region
   return (
     <div className="flex flex-col gap-4">
       <DataConfiguration />

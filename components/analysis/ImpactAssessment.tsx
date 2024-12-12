@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { fetchFilteredData, fetchContributors } from "@/lib/data/utils";
 import { formatImpactText, getFeatureIcon } from "@/lib/analysis/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useFeaturePreviewDialog } from "@/contexts/FeaturePreviewContext";
 
 interface AggregatedContribution {
   feature: string;
@@ -18,6 +19,7 @@ interface AggregatedContribution {
 }
 
 export function ImpactAssessment() {
+  const { openDialog } = useFeaturePreviewDialog();
   const { dateRange } = useChartStore();
   const [aggregatedContributions, setAggregatedContributions] = useState<
     AggregatedContribution[]
@@ -121,14 +123,18 @@ export function ImpactAssessment() {
         </ul>
       </CardContent>
       <CardFooter className="flex flex-col sm:flex-row gap-3">
-        <Button className="w-full sm:w-1/2" disabled={isLoading}>
+        <Button
+          className="w-full sm:w-1/2"
+          disabled={isLoading}
+          onClick={openDialog}>
           <Zap className="mr-2 h-4 w-4" />
           Tune Predictive Models
         </Button>
         <Button
           variant="outline"
           className="w-full sm:w-1/2"
-          disabled={isLoading}>
+          disabled={isLoading}
+          onClick={openDialog}>
           <Bot className="mr-2 h-4 w-4" />
           Explore with Blitz Bot
         </Button>

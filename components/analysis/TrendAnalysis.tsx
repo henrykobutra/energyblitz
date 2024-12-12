@@ -17,8 +17,10 @@ import { fetchHourlyData } from "@/lib/data/utils";
 import { generateInsights, AnalysisInsights } from "@/lib/analysis/utils";
 import { useChartStore } from "@/lib/stores/chartStore";
 import { cn } from "@/lib/utils";
+import { useFeaturePreviewDialog } from "@/contexts/FeaturePreviewContext";
 
 export function TrendAnalysis() {
+  const { openDialog } = useFeaturePreviewDialog();
   const { dateRange } = useChartStore();
   const [insights, setInsights] = useState<AnalysisInsights | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -196,7 +198,7 @@ export function TrendAnalysis() {
         </ul>
       </CardContent>
       <CardFooter>
-        <Button className="w-full">
+        <Button className="w-full" onClick={openDialog}>
           <Bot className="mr-2 h-4 w-4" />
           Analyze with Blitz Bot
         </Button>

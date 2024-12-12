@@ -1,6 +1,8 @@
 import { ConsumptionDataParsed } from "@/types/data";
 import { format } from "date-fns";
 
+export * from "./impact";
+
 export interface AnalysisInsights {
   percentageChange: number;
   peakTimes: string[];

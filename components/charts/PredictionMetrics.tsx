@@ -16,21 +16,48 @@ interface MetricProps {
   unit: string;
 }
 
-const Metric = ({ label, value, max, unit }: MetricProps) => (
-  <div className="space-y-1">
-    <div className="flex justify-between text-xs">
-      <span>{label}</span>
-      <span className="font-medium">
-        {value.toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })}{" "}
-        / {max.toLocaleString()} {unit}
-      </span>
+const Metric = ({ label, value, max, unit }: MetricProps) => {
+  // Calculate percentage and determine color
+  const percentage = Math.min((value / max) * 100, 100);
+  const isR2 = label === "R²";
+
+  // Invert the color logic for R²
+  const colorClass = isR2
+    ? percentage >= 85
+      ? "bg-green-500"
+      : percentage >= 60
+      ? "bg-yellow-500"
+      : "bg-red-500"
+    : percentage <= 90
+    ? "bg-blue-500"
+    : percentage <= 95
+    ? "bg-yellow-500"
+    : "bg-red-500";
+
+  return (
+    <div className="space-y-1">
+      <div className="flex justify-between text-xs">
+        <span className="flex items-center gap-2">
+          <span className="relative flex h-2 w-2">
+            <span
+              className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${colorClass}`}></span>
+            <span
+              className={`relative inline-flex rounded-full h-2 w-2 ${colorClass}`}></span>
+          </span>
+          {label}
+        </span>
+        <span className="font-medium">
+          {value.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}{" "}
+          / {max.toLocaleString()} {unit}
+        </span>
+      </div>
+      <Progress value={percentage} className="h-2" />
     </div>
-    <Progress value={(value / max) * 100} className="h-2" />
-  </div>
-);
+  );
+};
 
 export function PredictionMetrics() {
   const dateRange = useChartStore((state) => state.dateRange);
@@ -62,7 +89,10 @@ export function PredictionMetrics() {
       ? `${format(dateRange.from, "MMM d, yyyy")} - ${format(
           dateRange.to,
           "MMM d, yyyy",
-        )}`
+        )} (${Math.ceil(
+          (dateRange.to.getTime() - dateRange.from.getTime()) /
+            (1000 * 60 * 60 * 24),
+        )} days)`
       : "No date range selected";
 
   return (
@@ -72,9 +102,9 @@ export function PredictionMetrics() {
         description={`Date Range: ${formattedDateRange}`}
       />
       <CardContent className="flex-grow grid grid-cols-2 gap-4">
-        <Metric label="MAE" value={metrics.mae} max={2000} unit="MW" />
-        <Metric label="RMSE" value={metrics.rmse} max={2000} unit="MW" />
-        <Metric label="MAPE" value={metrics.mape} max={10} unit="%" />
+        <Metric label="MAE" value={metrics.mae} max={1050} unit="MW" />
+        <Metric label="RMSE" value={metrics.rmse} max={1900} unit="MW" />
+        <Metric label="MAPE" value={metrics.mape} max={5} unit="%" />
         <Metric label="R²" value={metrics.r2} max={1} unit="" />
       </CardContent>
     </Card>

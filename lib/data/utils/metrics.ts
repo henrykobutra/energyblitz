@@ -10,63 +10,29 @@ interface PredictionMetrics {
 export function calculatePredictionMetrics(
   data: ConsumptionDataParsed[],
 ): PredictionMetrics {
-  // Filter out invalid data points
-  const validData = data.filter(
-    (item) =>
-      item.PJME != null &&
-      item.Predicted_PJME != null &&
-      !isNaN(item.PJME) &&
-      !isNaN(item.Predicted_PJME) &&
-      item.PJME !== 0, // Prevent division by zero for MAPE
-  );
+  const n = data.length;
 
-  if (!validData.length) {
-    return {
-      mae: 0,
-      rmse: 0,
-      mape: 0,
-      r2: 0,
-    };
-  }
+  // Calculate differences between actual and predicted values
+  const differences = data.map((d) => d.PJME - d.Predicted_PJME);
+  const absoluteDifferences = differences.map((d) => Math.abs(d));
+  const squaredDifferences = differences.map((d) => d * d);
 
-  const n = validData.length;
-  let sumActual = 0;
-  let sumAbsError = 0;
-  let sumSquaredError = 0;
-  let sumAbsPercentError = 0;
-  let sumSquaredTotal = 0;
+  // Calculate MAE (Mean Absolute Error)
+  const mae = absoluteDifferences.reduce((sum, d) => sum + d, 0) / n;
 
-  // Calculate means and errors using only valid data
-  validData.forEach((item) => {
-    const actual = item.PJME;
-    const predicted = item.Predicted_PJME;
-    const error = actual - predicted;
+  // Calculate RMSE (Root Mean Square Error)
+  const rmse = Math.sqrt(squaredDifferences.reduce((sum, d) => sum + d, 0) / n);
 
-    sumActual += actual;
-    sumAbsError += Math.abs(error);
-    sumSquaredError += error * error;
-    sumAbsPercentError += Math.abs(error / actual) * 100;
-  });
+  // Calculate MAPE (Mean Absolute Percentage Error)
+  const mape =
+    (absoluteDifferences.reduce((sum, d, i) => sum + d / data[i].PJME, 0) / n) *
+    100;
 
-  const meanActual = sumActual / n;
-
-  // Recalculate sums in a separate loop for accuracy
-  validData.forEach((item) => {
-    const actual = item.PJME;
-    const predicted = item.Predicted_PJME;
-
-    // Calculate residual sum of squares (RSS)
-    sumSquaredError += Math.pow(actual - predicted, 2);
-    // Calculate total sum of squares (TSS)
-    sumSquaredTotal += Math.pow(actual - meanActual, 2);
-  });
-
-  // Calculate metrics
-  const mae = sumAbsError / n;
-  const rmse = Math.sqrt(sumSquaredError / n);
-  const mape = sumAbsPercentError / n;
-  // R² = 1 - (RSS/TSS)
-  const r2 = Math.max(0, 1 - sumSquaredError / sumSquaredTotal);
+  // Calculate R² (R-squared)
+  const mean = data.reduce((sum, d) => sum + d.PJME, 0) / n;
+  const totalSS = data.reduce((sum, d) => sum + Math.pow(d.PJME - mean, 2), 0);
+  const residualSS = squaredDifferences.reduce((sum, d) => sum + d, 0);
+  const r2 = 1 - residualSS / totalSS;
 
   return {
     mae,
